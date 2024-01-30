@@ -71,6 +71,52 @@ def get_and_write_data(api_url, md_file):
             for voice_pack in voice_packs:
                 md_content += "| " + voice_pack["language"] + " | [" + voice_pack["name"] + "](" + voice_pack["path"] + ") | " + str(bytes_to_gb(int(voice_pack["size"]))) + " GB | " + str(bytes_to_gb(int(voice_pack["package_size"]))) + " GB | " + voice_pack["md5"] + " |\n" # Convert bytes to gigabytes
             md_content += "\n"
+                # Judge whether there is a pre_download_game field
+        if "pre_download_game" in data["data"] and data["data"]["pre_download_game"] is not None:
+            # Get the pre-download information of the game
+            pre_download_game = data["data"]["pre_download_game"]["latest"]
+            md_content += "# Pre-Downloads\n\n"
+            md_content += "- **Version number**：" + pre_download_game["version"] + "\n"
+            md_content += "- **Full Size**：" + str(bytes_to_gb(int(pre_download_game["size"]))) + " GB (Client + All Languages Voice Packs Unpacked Size)\n" # Convert bytes to gigabytes
+            md_content += "- **MD5 checksum**：" + pre_download_game["md5"] + "\n"
+            md_content += "- **Entry file**：" + pre_download_game["entry"] + "\n\n"
+            # Get the pre-download segment download information of the game
+            segments = pre_download_game["segments"]
+            md_content += "## Pre-Download Client\n\n"
+            md_content += "| Download link | Package size | MD5 checksum |\n"
+            md_content += "| :---: | :---: | :---: |\n"
+            md_content += "| [" + pre_download_game["path"].split("/")[-1] + "](" + pre_download_game["path"] + ") | " + str(bytes_to_gb(int(pre_download_game["package_size"]))) + " GB | " + pre_download_game["md5"] + " |\n" # Convert bytes to gigabytes
+        #   for segment in segments:
+        #       md_content += "| [" + segment["path"].split("/")[-1] + "](" + segment["path"] + ") | " + str(bytes_to_gb(int(segment["package_size"]))) + " GB | " + segment["md5"] + " |\n" # Convert bytes to gigabytes
+            md_content += "\n"
+            # Get the pre-download voice pack information of the game
+            voice_packs = pre_download_game["voice_packs"]
+            md_content += "## Pre-Download Voice Pack\n\n"
+            md_content += "| Language | Download link | Size | Package size | MD5 checksum |\n"
+            md_content += "| :---: | :---: | :---: | :---: | :---: |\n"
+            for voice_pack in voice_packs:
+                md_content += "| " + voice_pack["language"] + " | [" + voice_pack["language"] + "_" + pre_download_game["version"] + ".zip](" + voice_pack["path"] + ") | " + str(bytes_to_gb(int(voice_pack["size"]))) + " GB | " + str(bytes_to_gb(int(voice_pack["package_size"]))) + " GB | " + voice_pack["md5"] + " |\n" # Convert bytes to gigabytes
+            md_content += "\n"
+
+            # Get the difference update information of the pre-download game
+            diffs = data["data"]["pre_download_game"]["diffs"]
+            md_content += "## Pre-Download Client Diff files\n\n"
+            md_content += "| Diff version | Download link | Size | Package size | MD5 checksum |\n"
+            md_content += "| :---: | :---: | :---: | :---: | :---: |\n"
+            for diff in diffs:
+                md_content += "| " + diff["version"] + "-" + pre_download_game["version"] +" | [" + diff["name"] + "](" + diff["path"] + ") | " + str(bytes_to_gb(int(diff["size"]))) + " GB | " + str(bytes_to_gb(int(diff["package_size"]))) + " GB | " + diff["md5"] + " |\n" # Convert bytes to gigabytes
+            md_content += "\n"
+            for diff in diffs:
+                # Get the voice pack information of the pre-download update
+                voice_packs = diff["voice_packs"]
+                md_content += "### Pre-Download Voice Pack  " + diff["version"] + "-" + pre_download_game["version"] + " Diff\n\n"
+                md_content += "| Language | Download link | Size | Package size | MD5 checksum |\n"
+                md_content += "| :---: | :---: | :---: | :---: | :---: |\n"
+                for voice_pack in voice_packs:
+                    md_content += "| " + voice_pack["language"] + " | [" + voice_pack["name"] + "](" + voice_pack["path"] + ") | " + str(bytes_to_gb(int(voice_pack["size"]))) + " GB | " + str(bytes_to_gb(int(voice_pack["package_size"]))) + " GB | " + voice_pack["md5"] + " |\n" # Convert bytes to gigabytes
+                md_content += "\n"
+        else:
+            print("Pre-Download is not available now")
     else:
         # Add the reason for the failure to the content of the markdown file
         md_content += "Request failed, reason as follows:\n\n"
