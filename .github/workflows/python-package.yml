@@ -3,7 +3,7 @@ name: Update HSR Download Info
 
 on:
   schedule:
-    - cron:  '0 * * * *' # runs at each hour
+    - cron:  '0 6 * * *' # runs at each hour
 
   workflow_dispatch: # This allows manual trigger.
 
